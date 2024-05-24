@@ -4,6 +4,77 @@
 
 
 {% block content %}
-<p>teste</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Health Business</title>
+    <link href="/static/css/home.css" rel="stylesheet">
+</head>
+<body>
+    
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="container">
+                <h1>Welcome to Our Health Services</h1>
+                <p>Your journey to better health starts here.</p>
+                <button class="cta">Get Started</button>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="services">
+            <div class="container">
+                <h2>Our Services</h2>
+                <p>We offer a range of services to improve your health and well-being.</p>
+                <div class="service-cards">
+                    <div class="card">
+                        <img src="https://via.placeholder.com/400" alt="Service 1">
+                        <h3>Service 1</h3>
+                        <p>Description of the first service offered by your health business.</p>
+                    </div>
+                    <div class="card">
+                        <img src="https://via.placeholder.com/400" alt="Service 2">
+                        <h3>Service 2</h3>
+                        <p>Description of the second service offered by your health business.</p>
+                    </div>
+                    <div class="card">
+                        <img src="https://via.placeholder.com/400" alt="Service 3">
+                        <h3>Service 3</h3>
+                        <p>Description of the third service offered by your health business.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact">
+            <div class="container">
+                <h2>Contact Us</h2>
+                <p>Get in touch with us to learn more about our services and how we can help you.</p>
+                <form>
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email" required>
+                    <textarea placeholder="Your Message" required></textarea>
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Your Health Business. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/home.js"></script>
+</body>
+</html>
+
 
 {% endblock content %}
