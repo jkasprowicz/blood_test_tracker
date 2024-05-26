@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'blood_test_tracker',
+    'tracker',
 ]
 
 MIDDLEWARE = [
