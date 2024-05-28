@@ -1,3 +1,21 @@
 .background-box {
     background-color: aliceblue;
 }
+.welcome-container {
+    background-color: #f8f9fa;
+    padding: 50px 0;
+    text-align: center;
+}
+.info-container, .graph-container {
+    background-color: #ffffff;
+    padding: 30px;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.main-info-container {
+    margin-top: 20px;
+    padding: 30px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+}
