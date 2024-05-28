@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %} {% endblock title %}
+
+
+{% block content %}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/blood_test_tracker/static/css/enter_page.css">
+</head>
+<body>
+        <div class="container">
+            <h1>Upload Exam</h1>
+            <form method="post">
+                {% csrf_token %}
+                <label for="id_exam_name">Exam Name:</label>
+                {{ exam_form.exam_name }}
+                <label for="id_exam_date">Exam Date:</label>
+                {{ exam_form.exam_date }}
+                <label for="id_reference_values">Reference Values:</label>
+                {{ exam_form.reference_values }}
+                <label for="id_notes">Notes:</label>
+                {{ exam_form.notes }}
+                <h2>Upload Result</h2>
+                <label for="id_exam">Exam:</label>
+                {{ result_form.exam }}
+                <label for="id_student_name">Student Name:</label>
+                {{ result_form.student_name }}
+                <label for="id_result">Result:</label>
+                {{ result_form.result }}
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+</body>
+</html>
+
+
+
+{% endblock content %}
