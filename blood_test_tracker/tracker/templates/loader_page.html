@@ -7,31 +7,93 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script>
+
     <link rel="stylesheet" href="/static/css/loader_page.css">
 </head>
 <body>
-        <div class="container">
-            <h1>Upload Exam</h1>
-            <form method="post">
-                {% csrf_token %}
-                <label for="id_exam_name">Exam Name:</label>
-                {{ exam_form.exam_name }}
-                <label for="id_exam_date">Exam Date:</label>
-                {{ exam_form.exam_date }}
-                <label for="id_reference_values">Reference Values:</label>
-                {{ exam_form.reference_values }}
-                <label for="id_notes">Notes:</label>
-                {{ exam_form.notes }}
-                <h2>Upload Result</h2>
-                <label for="id_exam">Exam:</label>
-                {{ result_form.exam }}
-                <label for="id_student_name">Student Name:</label>
-                {{ result_form.student_name }}
-                <label for="id_result">Result:</label>
-                {{ result_form.result }}
-                <button type="submit">Upload</button>
-            </form>
+    <div id="drop-zone">
+        <p>Drop files here or click to upload</p>
+        <input type="file" id="file-input" style="display: none;">
+        <div id="progress-bar">
+          <div id="upload-progress"></div>
         </div>
+        <button id="submit-btn" onclick="submitFiles()">Submit</button>
+    </div>
+    
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const progressBar = document.getElementById('upload-progress');
+    const fileInput = document.getElementById('file-input');
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const files = e.target.files;
+      handleFiles(files);
+    });
+
+    function handleFiles(files) {
+      if (files.length > 0) {
+        const file = files[0];
+        uploadFile(file);
+      }
+    }
+
+    function uploadFile(file) {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload', true);
+
+      xhr.upload.onprogress = function(e) {
+        const percent = (e.loaded / e.total) * 100;
+        progressBar.style.width = percent + '%';
+      };
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          alert('File uploaded successfully!');
+        } else {
+          alert('Error uploading file. Please try again.');
+        }
+      };
+
+      xhr.onerror = function() {
+        alert('Error uploading file. Please try again.');
+      };
+
+      const formData = new FormData();
+      formData.append('file', file);
+      xhr.send(formData);
+    }
+
+    function submitFiles() {
+      const files = fileInput.files;
+      if (files.length > 0) {
+        const file = files[0];
+        uploadFile(file);
+      } else {
+        alert('Please select a file to upload.');
+      }
+    }
+</script>
+    
+    
+    
 </body>
 </html>
 

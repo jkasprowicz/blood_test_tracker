@@ -38,3 +38,11 @@ body {
         margin-bottom: 20px;
     }
 }
+
+.graph-container {
+    flex: 0 0 50%; /* Adjust the width of the graph container */
+}
+
+.info-container {
+    flex: 0 0 25%; /* Adjust the width of the information container */
+}
