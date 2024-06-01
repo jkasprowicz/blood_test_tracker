@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %} {% endblock title %}
-
+{% block title %}Upload Exam Results{% endblock title %}
 
 {% block content %}
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script>
-
     <link rel="stylesheet" href="/static/css/loader_page.css">
 </head>
 <body>
@@ -16,84 +14,80 @@
         <p>Drop files here or click to upload</p>
         <input type="file" id="file-input" style="display: none;">
         <div id="progress-bar">
-          <div id="upload-progress"></div>
+            <div id="upload-progress"></div>
         </div>
         <button id="submit-btn" onclick="submitFiles()">Submit</button>
     </div>
-    
 
-<script>
-    const dropZone = document.getElementById('drop-zone');
-    const progressBar = document.getElementById('upload-progress');
-    const fileInput = document.getElementById('file-input');
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const progressBar = document.getElementById('upload-progress');
+        const fileInput = document.getElementById('file-input');
 
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
 
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
 
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      const files = e.dataTransfer.files;
-      handleFiles(files);
-    });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
 
-    fileInput.addEventListener('change', (e) => {
-      const files = e.target.files;
-      handleFiles(files);
-    });
+        fileInput.addEventListener('change', (e) => {
+            const files = e.target.files;
+            handleFiles(files);
+        });
 
-    function handleFiles(files) {
-      if (files.length > 0) {
-        const file = files[0];
-        uploadFile(file);
-      }
-    }
-
-    function uploadFile(file) {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/upload', true);
-
-      xhr.upload.onprogress = function(e) {
-        const percent = (e.loaded / e.total) * 100;
-        progressBar.style.width = percent + '%';
-      };
-
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          alert('File uploaded successfully!');
-        } else {
-          alert('Error uploading file. Please try again.');
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                uploadFile(file);
+            }
         }
-      };
 
-      xhr.onerror = function() {
-        alert('Error uploading file. Please try again.');
-      };
+        function uploadFile(file) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '{% url "loader_view" %}', true);
 
-      const formData = new FormData();
-      formData.append('file', file);
-      xhr.send(formData);
-    }
+            xhr.upload.onprogress = function(e) {
+                const percent = (e.loaded / e.total) * 100;
+                progressBar.style.width = percent + '%';
+            };
 
-    function submitFiles() {
-      const files = fileInput.files;
-      if (files.length > 0) {
-        const file = files[0];
-        uploadFile(file);
-      } else {
-        alert('Please select a file to upload.');
-      }
-    }
-</script>
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('File uploaded successfully!');
+                } else {
+                    alert('Error uploading file. Please try again.');
+                }
+            };
+
+            xhr.onerror = function() {
+                alert('Error uploading file. Please try again.');
+            };
+
+            const formData = new FormData();
+            formData.append('file', file);
+            xhr.send(formData);
+        }
+
+        function submitFiles() {
+            const files = fileInput.files;
+            if (files.length > 0) {
+                const file = files[0];
+                uploadFile(file);
+            } else {
+                alert('Please select a file to upload.');
+            }
+        }
+    </script>
 </body>
 </html>
-
-
-
 {% endblock content %}
