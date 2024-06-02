@@ -3,10 +3,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import ExamResult
 import fitz  # PyMuPDF
-import openai
+from openai import OpenAI
 import os
+import openai
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
+
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
 
 
 def tracker_view(request):
@@ -20,24 +23,49 @@ def extract_text_from_pdf(file):
         text += page.get_text()
     return text
 
+budget = 5  # dollars
+cost_per_1000_tokens = 0.002  # GPT-3.5-Turbo
+
 def extract_info_with_openai(text):
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=f"Extraia essas informações do texto, levando em consideração que é um texto extraído de um laudo de exame:\n\n"
-               f"1. Nome Paciente\n"
-               f"2. Data de Nascimento\n"
-               f"3. Material\n"
-               f"4. Nome do Exame\n\n"
-               f"5. Material\n\n"
-               f"6. Resultado\n\n"
-               f"7. Valor de Referência\n\n"
-               f"8. Nota\n\n"
-               f"Text:\n{text}\n\n"
-               f"Extracted Information:\n",
-        max_tokens=200,
-        temperature=0.5
-    )
-    return response.choices[0].text.strip()
+    global budget
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that extracts information from medical exam reports."},
+                {"role": "user", "content": (
+                    "Extract the following information from the text. Consider that it is text extracted from a medical exam report:\n\n"
+                    "1. Patient Name\n"
+                    "2. Date of Birth\n"
+                    "3. Material\n"
+                    "4. Exam Name\n"
+                    "5. Method\n"
+                    "6. Result\n"
+                    "7. Reference Value\n"
+                    "8. Note\n\n"
+                    f"Text:\n{text}\n\n"
+                    "Extracted Information:"
+                )}
+            ],
+            max_tokens=500,
+            temperature=0.5,
+        )
+        usage = response['usage']
+        total_tokens = usage['total_tokens']
+        cost = (total_tokens / 1000) * cost_per_1000_tokens
+        budget -= cost
+
+        if budget < 0:
+            raise Exception("Exceeded budget")
+
+        print(f"Prompt tokens: {usage['prompt_tokens']}, Completion tokens: {usage['completion_tokens']}, Total tokens: {usage['total_tokens']}, Remaining budget: ${budget:.2f}")
+        return response['choices'][0]['message']['content'].strip()
+    except openai.error.OpenAIError as e:
+        print(f"OpenAI API error: {e}")
+        return None
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
 def parse_extracted_info(extracted_info):
     info = {}
