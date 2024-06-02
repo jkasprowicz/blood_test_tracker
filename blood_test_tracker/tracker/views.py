@@ -3,13 +3,15 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import ExamResult
 import fitz  # PyMuPDF
-from openai import OpenAI
-import os
 import openai
+import os
+from openai import OpenAI
+from datetime import datetime
 
+# Initialize OpenAI API key
+#openai.api_key = os.getenv('OPENAI_API_KEY')
 
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-
+client = OpenAI(api_key='')
 
 
 def tracker_view(request):
@@ -29,61 +31,96 @@ cost_per_1000_tokens = 0.002  # GPT-3.5-Turbo
 def extract_info_with_openai(text):
     global budget
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that extracts information from medical exam reports."},
+                {"role": "system", "content": "Você é um assistente útil que extrai informações de relatórios de exames médicos."},
                 {"role": "user", "content": (
-                    "Extract the following information from the text. Consider that it is text extracted from a medical exam report:\n\n"
-                    "1. Patient Name\n"
-                    "2. Date of Birth\n"
-                    "3. Material\n"
-                    "4. Exam Name\n"
-                    "5. Method\n"
-                    "6. Result\n"
-                    "7. Reference Value\n"
-                    "8. Note\n\n"
-                    f"Text:\n{text}\n\n"
-                    "Extracted Information:"
+                    "Extraia as seguintes informações do texto. Considere que é um texto extraído de um relatório de exame médico, extraia todos os valores para cada exame:\n\n"
+                    "1. Nome do Paciente\n"
+                    "2. Data de Nascimento\n"
+                    "3. Data de Entrada\n"
+                    "4. Material\n"
+                    "5. Nome do Exame\n"
+                    "6. Método\n"
+                    "7. Resultado\n"
+                    "8. Valor de Referência\n"
+                    "9. Nota\n\n"
+                    f"Texto:\n{text}\n\n"
+                    "Informações Extraídas:"
                 )}
             ],
-            max_tokens=500,
             temperature=0.5,
         )
-        usage = response['usage']
-        total_tokens = usage['total_tokens']
-        cost = (total_tokens / 1000) * cost_per_1000_tokens
-        budget -= cost
-
-        if budget < 0:
-            raise Exception("Exceeded budget")
-
-        print(f"Prompt tokens: {usage['prompt_tokens']}, Completion tokens: {usage['completion_tokens']}, Total tokens: {usage['total_tokens']}, Remaining budget: ${budget:.2f}")
-        return response['choices'][0]['message']['content'].strip()
-    except openai.error.OpenAIError as e:
-        print(f"OpenAI API error: {e}")
-        return None
+        
+        response_message = response.choices[0].message.content
+        return response_message.strip()
     except Exception as e:
         print(f"Error: {e}")
         return None
+    
 
 def parse_extracted_info(extracted_info):
-    info = {}
-    for line in extracted_info.split('\n'):
-        if ': ' in line:
-            key, value = line.split(': ', 1)
-            info[key.strip()] = value.strip()
-    return info
+    # Split the extracted information into separate sets for each exam
+    exam_sets = extracted_info.split('\n\n')
+    
+    # Initialize a list to store parsed information for each exam
+    parsed_info_list = []
+    
+    # Parse each exam set
+    for exam_set in exam_sets:
+        info = {}
+        for line in exam_set.split('\n'):
+            if ': ' in line:
+                key, value = line.split(': ', 1)
+                info[key.strip()] = value.strip()
+        parsed_info_list.append(info)
+
+        print(parsed_info_list)
+    
+    return parsed_info_list
+
 
 @csrf_exempt
 def loader_view(request):
     if request.method == 'POST':
-        file = request.FILES['file']
-        text = extract_text_from_pdf(file)
-        extracted_info = extract_info_with_openai(text)
-        parsed_info = parse_extracted_info(extracted_info)
-        exam_result = ExamResult(**parsed_info)
-        exam_result.save()
-        return JsonResponse({'status': 'success', 'data': parsed_info})
+        file = request.FILES.get('file')
+        if file:
+            try:
+                text = extract_text_from_pdf(file)
+                extracted_info = extract_info_with_openai(text)
+                if extracted_info:
+                    # Split the extracted information into separate sets for each exam
+                    exam_sets = extracted_info.split('\n\n')
 
+                    for exam_set in exam_sets:
+                        info = {}
+                        for line in exam_set.split('\n'):
+                            if ': ' in line:
+                                key, value = line.split(': ', 1)
+                                info[key.strip()] = value.strip()
+                        
+                        # Create ExamResult object and save to database
+                        exam_result = ExamResult.objects.create(
+                            name=info.get('1. Nome do Paciente', ''),
+                            birth_date=datetime.strptime(info.get('2. Data de Nascimento', ''), '%d/%m/%Y').date(),
+                            data_entrada=datetime.strptime(info.get('3. Data de Entrada', '').split('|')[0].strip(), '%d/%m/%Y').date(),
+                            material=info.get('4. Material', ''),
+                            exam_type=info.get('5. Nome do Exame', ''),
+                            results=info.get('7. Resultado', ''),
+                            method=info.get('6. Método', ''),
+                            reference_value='\n'.join([f"{k}: {v}" for k, v in info.items() if k.startswith('-')]),
+                            note=info.get('9. Nota', '')
+                        )
+                        exam_result.save()
+                    
+
+                    return JsonResponse({'status': 'success', 'message': 'Exam results saved successfully'})
+                else:
+                    return JsonResponse({'status': 'error', 'message': 'Failed to extract information'})
+            except Exception as e:
+                print(f"Error processing PDF file: {e}")
+                return JsonResponse({'status': 'error', 'message': 'Failed to process PDF file'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'No file uploaded'})
     return render(request, 'loader_page.html')
