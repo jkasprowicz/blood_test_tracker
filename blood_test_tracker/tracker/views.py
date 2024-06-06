@@ -7,11 +7,12 @@ import openai
 import os
 from openai import OpenAI
 from datetime import datetime
-
+import re
+    
 # Initialize OpenAI API key
 #openai.api_key = os.getenv('OPENAI_API_KEY')
 
-client = OpenAI(api_key='')
+client = OpenAI(api_key='sk-proj-FKe5OzG95gizAzATyvCFT3BlbkFJ8mGDY65DzlC6BpsObDoL')
 
 
 def tracker_view(request):
@@ -36,7 +37,7 @@ def extract_info_with_openai(text):
             messages=[
                 {"role": "system", "content": "Você é um assistente útil que extrai informações de relatórios de exames médicos."},
                 {"role": "user", "content": (
-                    "Extraia as seguintes informações do texto. Considere que é um texto extraído de um relatório de exame médico, extraia todos os valores para cada exame:\n\n"
+                    "Extraia as seguintes informações do texto:\n\n"
                     "1. Nome do Paciente\n"
                     "2. Data de Nascimento\n"
                     "3. Data de Entrada\n"
@@ -54,6 +55,7 @@ def extract_info_with_openai(text):
         )
         
         response_message = response.choices[0].message.content
+        print(response_message)
         return response_message.strip()
     except Exception as e:
         print(f"Error: {e}")
@@ -89,9 +91,12 @@ def loader_view(request):
             try:
                 text = extract_text_from_pdf(file)
                 extracted_info = extract_info_with_openai(text)
+                print('extracted info:', extracted_info)
                 if extracted_info:
                     # Split the extracted information into separate sets for each exam
                     exam_sets = extracted_info.split('\n\n')
+        
+                    print(exam_sets)
 
                     for exam_set in exam_sets:
                         info = {}
@@ -99,6 +104,8 @@ def loader_view(request):
                             if ': ' in line:
                                 key, value = line.split(': ', 1)
                                 info[key.strip()] = value.strip()
+
+                        print(info)
                         
                         # Create ExamResult object and save to database
                         exam_result = ExamResult.objects.create(
@@ -109,7 +116,7 @@ def loader_view(request):
                             exam_type=info.get('5. Nome do Exame', ''),
                             results=info.get('7. Resultado', ''),
                             method=info.get('6. Método', ''),
-                            reference_value='\n'.join([f"{k}: {v}" for k, v in info.items() if k.startswith('-')]),
+                            reference_value=info.get('8. Valor de Referência', ''),
                             note=info.get('9. Nota', '')
                         )
                         exam_result.save()
