@@ -3,131 +3,83 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import ExamResult
 import fitz  # PyMuPDF
-import openai
 import os
-from openai import OpenAI
 from datetime import datetime
 import re
     
-# Initialize OpenAI API key
-#openai.api_key = os.getenv('OPENAI_API_KEY')
-
-client = OpenAI(api_key='sk-proj-FKe5OzG95gizAzATyvCFT3BlbkFJ8mGDY65DzlC6BpsObDoL')
-
 
 def tracker_view(request):
     return render(request, 'enter_page.html')
 
-def extract_text_from_pdf(file):
-    text = ""
-    pdf_document = fitz.open(stream=file.read(), filetype="pdf")
-    for page_num in range(len(pdf_document)):
-        page = pdf_document.load_page(page_num)
-        text += page.get_text()
-    return text
 
-budget = 5  # dollars
-cost_per_1000_tokens = 0.002  # GPT-3.5-Turbo
+def extract_exam_info(text):
+    # Implement logic to handle different PDF structures
+    # This function should be able to handle various structures and extract relevant info
+    
+    # Example: Parsing based on known patterns
+    lines = text.split('\n')
+    info = {}
 
-def extract_info_with_openai(text):
-    global budget
+    print(info)
+    
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "Você é um assistente útil que extrai informações de relatórios de exames médicos."},
-                {"role": "user", "content": (
-                    "Extraia as seguintes informações do texto:\n\n"
-                    "1. Nome do Paciente\n"
-                    "2. Data de Nascimento\n"
-                    "3. Data de Entrada\n"
-                    "4. Material\n"
-                    "5. Nome do Exame\n"
-                    "6. Método\n"
-                    "7. Resultado\n"
-                    "8. Valor de Referência\n"
-                    "9. Nota\n\n"
-                    f"Texto:\n{text}\n\n"
-                    "Informações Extraídas:"
-                )}
-            ],
-            temperature=0.5,
-        )
-        
-        response_message = response.choices[0].message.content
-        print(response_message)
-        return response_message.strip()
-    except Exception as e:
-        print(f"Error: {e}")
-        return None
-    
+        info['name'] = lines[0].strip()
+        info['birth_date'] = datetime.strptime(lines[1].strip(), '%Y-%m-%d').date()
+        info['data_entrada'] = datetime.strptime(lines[2].strip(), '%Y-%m-%d').date()
+        info['material'] = lines[3].strip()
+        info['exam_type'] = lines[4].strip()
+        info['results'] = lines[5].strip()
+        info['method'] = lines[6].strip()
+        info['reference_value'] = lines[7].strip()
+        info['note'] = lines[8].strip()
+    except (IndexError, ValueError):
+        # Handle different structure or missing values
+        # Use appropriate parsing techniques for different structures
+        # You can use regular expressions or other text processing methods
+        pass
 
-def parse_extracted_info(extracted_info):
-    # Split the extracted information into separate sets for each exam
-    exam_sets = extracted_info.split('\n\n')
-    
-    # Initialize a list to store parsed information for each exam
-    parsed_info_list = []
-    
-    # Parse each exam set
-    for exam_set in exam_sets:
-        info = {}
-        for line in exam_set.split('\n'):
-            if ': ' in line:
-                key, value = line.split(': ', 1)
-                info[key.strip()] = value.strip()
-        parsed_info_list.append(info)
-
-        print(parsed_info_list)
-    
-    return parsed_info_list
-
+    return info
 
 @csrf_exempt
 def loader_view(request):
     if request.method == 'POST':
-        file = request.FILES.get('file')
-        if file:
-            try:
-                text = extract_text_from_pdf(file)
-                extracted_info = extract_info_with_openai(text)
-                print('extracted info:', extracted_info)
-                if extracted_info:
-                    # Split the extracted information into separate sets for each exam
-                    exam_sets = extracted_info.split('\n\n')
-        
-                    print(exam_sets)
+        pdf_file = request.FILES.get('file')
+        print(pdf_file)
+        if pdf_file:
 
-                    for exam_set in exam_sets:
-                        info = {}
-                        for line in exam_set.split('\n'):
-                            if ': ' in line:
-                                key, value = line.split(': ', 1)
-                                info[key.strip()] = value.strip()
+        # Open the PDF with fitz
+            pdf_document = fitz.open(stream=pdf_file.read(), filetype="pdf")
+            print(pdf_document)
+            text = ""
+            print(text)
+            
+            # Extract text from all pages
+            for page_num in range(pdf_document.page_count):
+                page = pdf_document.load_page(page_num)
+                text += page.get_text("text") + "\n"
+                print(page_num)
+                print(page)
 
-                        print(info)
-                        
-                        # Create ExamResult object and save to database
-                        exam_result = ExamResult.objects.create(
-                            name=info.get('1. Nome do Paciente', ''),
-                            birth_date=datetime.strptime(info.get('2. Data de Nascimento', ''), '%d/%m/%Y').date(),
-                            data_entrada=datetime.strptime(info.get('3. Data de Entrada', '').split('|')[0].strip(), '%d/%m/%Y').date(),
-                            material=info.get('4. Material', ''),
-                            exam_type=info.get('5. Nome do Exame', ''),
-                            results=info.get('7. Resultado', ''),
-                            method=info.get('6. Método', ''),
-                            reference_value=info.get('8. Valor de Referência', ''),
-                            note=info.get('9. Nota', '')
-                        )
-                        exam_result.save()
-                    
 
-                    return JsonResponse({'status': 'success', 'message': 'Exam results saved successfully'})
-                else:
-                    return JsonResponse({'status': 'error', 'message': 'Failed to extract information'})
-            except Exception as e:
-                print(f"Error processing PDF file: {e}")
-                return JsonResponse({'status': 'error', 'message': 'Failed to process PDF file'})
+            # Extract information using your custom function
+            exam_info = extract_exam_info(text)
+            print(exam_info)
+
+            if exam_info:
+                # Save to the database
+                ExamResult.objects.create(
+                    name=exam_info.get('name', ''),
+                    birth_date=exam_info.get('birth_date', None),
+                    data_entrada=exam_info.get('data_entrada', None),
+                    material=exam_info.get('material', ''),
+                    exam_type=exam_info.get('exam_type', ''),
+                    results=exam_info.get('results', ''),
+                    method=exam_info.get('method', ''),
+                    reference_value=exam_info.get('reference_value', ''),
+                    note=exam_info.get('note', ''),
+                    uploaded_at=datetime.now()
+                )
+                return JsonResponse({'status': 'success'})
         else:
             return JsonResponse({'status': 'error', 'message': 'No file uploaded'})
     return render(request, 'loader_page.html')
