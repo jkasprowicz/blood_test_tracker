@@ -13,7 +13,7 @@ import re
 # Initialize OpenAI API key
 #openai.api_key = os.getenv('OPENAI_API_KEY')
 
-client = OpenAI(api_key=')
+client = OpenAI(api_key='')
 
 
 def tracker_view(request):
