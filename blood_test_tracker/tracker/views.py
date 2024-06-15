@@ -13,7 +13,7 @@ import re
 # Initialize OpenAI API key
 #openai.api_key = os.getenv('OPENAI_API_KEY')
 
-client = OpenAI(api_key='sk-proj-4t9jDO68yI6C1EWJvZ5hT3BlbkFJhxV1SGq1c1SlgYxvIerX')
+client = OpenAI(api_key=')
 
 
 def tracker_view(request):
@@ -43,7 +43,7 @@ def extract_info_with_openai(text):
                     "5. Nome do Exame\n"
                     "6. Método\n"
                     "7. Resultado\n"
-                    "8. Valor de Referência\n"
+                    "8. Valor de Referência, ou Valores de Referência ou Intervalo de Referência\n"
                     "9. Nota\n\n"
                     f"Texto:\n{text}\n\n"
                     "Informações Extraídas:"
@@ -77,6 +77,8 @@ def parse_extracted_info(extracted_info):
         print(parsed_info_list)
     
     return parsed_info_list
+
+
 @csrf_exempt
 def loader_view(request):
     if request.method == 'POST':
