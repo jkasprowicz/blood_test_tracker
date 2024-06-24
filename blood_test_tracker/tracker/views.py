@@ -18,22 +18,28 @@ client = OpenAI(api_key='')
 
 def tracker_view(request):
     return render(request, 'enter_page.html')
+
+
 def extract_text_from_pdf(file):
     text = ""
     pdf_document = fitz.open(stream=file.read(), filetype="pdf")
     for page_num in range(len(pdf_document)):
         page = pdf_document.load_page(page_num)
         text += page.get_text()
+        print(text)
+        print(page)
     return text
+
 budget = 5  # dollars
 cost_per_1000_tokens = 0.002  # GPT-3.5-Turbo
+
 def extract_info_with_openai(text):
     global budget
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Você é um assistente útil que extrai informações de relatórios de exames médicos."},
+                {"role": "system", "content": "Você é um assistente útil que extrai todas as informações de relatórios de exames médicos."},
                 {"role": "user", "content": (
                     "Extraia as seguintes informações do texto."
                     "1. Nome do Paciente\n"
@@ -60,23 +66,29 @@ def extract_info_with_openai(text):
         return None
     
 def parse_extracted_info(extracted_info):
-    # Split the extracted information into separate sets for each exam
     exam_sets = extracted_info.split('\n\n')
-    
-    # Initialize a list to store parsed information for each exam
     parsed_info_list = []
-    
-    # Parse each exam set
+
     for exam_set in exam_sets:
         info = {}
+        current_key = None
         for line in exam_set.split('\n'):
             if ': ' in line:
                 key, value = line.split(': ', 1)
-                info[key.strip()] = value.strip()
+                if key.strip().startswith('8. Valor de Referência'):
+                    current_key = key.strip()
+                    info[current_key] = value.strip()
+                else:
+                    info[key.strip()] = value.strip()
+                    current_key = key.strip()
+            else:
+                if current_key:
+                    info[current_key] += f"\n{line.strip()}"
         parsed_info_list.append(info)
-        print(parsed_info_list)
-    
+
     return parsed_info_list
+
+
 
 
 @csrf_exempt
@@ -89,20 +101,15 @@ def loader_view(request):
                 extracted_info = extract_info_with_openai(text)
                 print('extracted info:', extracted_info)
                 if extracted_info:
-                    # Split the extracted information into separate sets for each exam
-                    exam_sets = extracted_info.split('\n\n')
-
-                    print(exam_sets)
-
-                    for exam_set in exam_sets:
-                        info = {}
-                        for line in exam_set.split('\n'):
-                            if ': ' in line:
-                                key, value = line.split(': ', 1)
-                                info[key.strip()] = value.strip()
-
-                        print(info)
-
+                    parsed_info_list = parse_extracted_info(extracted_info)
+                    print(parsed_info_list)
+                    for info in parsed_info_list:
+                        # Concatenate reference value lines if necessary
+                        reference_value = info.get('8. Valor de Referência', '')
+                        for key in info:
+                            if key.startswith('- '):
+                                reference_value += f"\n{key} {info[key]}"
+                        
                         # Create ExamResult object and save to database
                         exam_result = ExamResult.objects.create(
                             name=info.get('1. Nome do Paciente', ''),
@@ -112,7 +119,7 @@ def loader_view(request):
                             exam_type=info.get('5. Nome do Exame', ''),
                             results=info.get('7. Resultado', ''),
                             method=info.get('6. Método', ''),
-                            reference_value=info.get('8. Valor de Referência', ''),
+                            reference_value=reference_value.strip(),
                             note=info.get('9. Nota', '')
                         )
                         exam_result.save()
