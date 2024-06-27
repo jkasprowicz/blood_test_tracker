@@ -10,15 +10,13 @@ from datetime import datetime
 
 import re
 
+
+
 # Initialize OpenAI API key
-#openai.api_key = os.getenv('OPENAI_API_KEY')
-
-client = OpenAI(api_key='')
-
+client = openai.OpenAI(api_key='sk-proj-dD0e5qcuqGskGjD0pOIuT3BlbkFJJMtzyDc6K6WZQW1Gz8YW')
 
 def tracker_view(request):
     return render(request, 'enter_page.html')
-
 
 def extract_text_from_pdf(file):
     text = ""
@@ -26,15 +24,9 @@ def extract_text_from_pdf(file):
     for page_num in range(len(pdf_document)):
         page = pdf_document.load_page(page_num)
         text += page.get_text()
-        print(text)
-        print(page)
     return text
 
-budget = 5  # dollars
-cost_per_1000_tokens = 0.002  # GPT-3.5-Turbo
-
 def extract_info_with_openai(text):
-    global budget
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -57,9 +49,7 @@ def extract_info_with_openai(text):
             ],
             temperature=0.5,
         )
-
         response_message = response.choices[0].message.content
-        print(response_message)
         return response_message.strip()
     except Exception as e:
         print(f"Error: {e}")
@@ -88,9 +78,6 @@ def parse_extracted_info(extracted_info):
 
     return parsed_info_list
 
-
-
-
 @csrf_exempt
 def loader_view(request):
     if request.method == 'POST':
@@ -98,17 +85,22 @@ def loader_view(request):
         if file:
             try:
                 text = extract_text_from_pdf(file)
+                print(f"Extracted text: {text}")
+
                 extracted_info = extract_info_with_openai(text)
-                print('extracted info:', extracted_info)
+                
+                print(f"Extracted info from OpenAI: {extracted_info}")
+
                 if extracted_info:
                     parsed_info_list = parse_extracted_info(extracted_info)
-                    print(parsed_info_list)
+                    print(f"Parsed info list: {parsed_info_list}")
+
                     for info in parsed_info_list:
                         # Concatenate reference value lines if necessary
                         reference_value = info.get('8. Valor de Referência', '')
-                        for key in info:
+                        for key in list(info.keys()):
                             if key.startswith('- '):
-                                reference_value += f"\n{key} {info[key]}"
+                                reference_value += f"\n{key} {info.pop(key)}"
                         
                         # Create ExamResult object and save to database
                         exam_result = ExamResult.objects.create(
