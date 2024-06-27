@@ -13,7 +13,7 @@ import re
 
 
 # Initialize OpenAI API key
-client = openai.OpenAI(api_key='sk-proj-dD0e5qcuqGskGjD0pOIuT3BlbkFJJMtzyDc6K6WZQW1Gz8YW')
+client = openai.OpenAI(api_key='')
 
 def tracker_view(request):
     return render(request, 'enter_page.html')
