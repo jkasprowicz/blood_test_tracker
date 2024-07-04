@@ -13,7 +13,7 @@ import re
 
 
 # Initialize OpenAI API key
-client = openai.OpenAI(api_key='')
+client = openai.OpenAI(api_key='sk-proj-6WOxpasvrTTcsMPkylEET3BlbkFJzHeSDZKb2wcz1VXr9UaK')
 
 def tracker_view(request):
     return render(request, 'enter_page.html')
@@ -88,12 +88,13 @@ def loader_view(request):
                 print(f"Extracted text: {text}")
 
                 extracted_info = extract_info_with_openai(text)
-                
                 print(f"Extracted info from OpenAI: {extracted_info}")
 
                 if extracted_info:
                     parsed_info_list = parse_extracted_info(extracted_info)
                     print(f"Parsed info list: {parsed_info_list}")
+
+                    exam_results_list = []
 
                     for info in parsed_info_list:
                         # Concatenate reference value lines if necessary
@@ -102,8 +103,8 @@ def loader_view(request):
                             if key.startswith('- '):
                                 reference_value += f"\n{key} {info.pop(key)}"
                         
-                        # Create ExamResult object and save to database
-                        exam_result = ExamResult.objects.create(
+                        # Create ExamResult object (not saving yet)
+                        exam_result = ExamResult(
                             name=info.get('1. Nome do Paciente', ''),
                             birth_date=datetime.strptime(info.get('2. Data de Nascimento', ''), '%d/%m/%Y').date(),
                             data_entrada=datetime.strptime(info.get('3. Data de Entrada', '').split('|')[0].strip(), '%d/%m/%Y').date(),
@@ -114,8 +115,11 @@ def loader_view(request):
                             reference_value=reference_value.strip(),
                             note=info.get('9. Nota', '')
                         )
-                        exam_result.save()
+                        exam_results_list.append(exam_result)
                     
+                    # Bulk save all exam results
+                    ExamResult.objects.bulk_create(exam_results_list)
+
                     return JsonResponse({'status': 'success', 'message': 'Exam results saved successfully'})
                 else:
                     return JsonResponse({'status': 'error', 'message': 'Failed to extract information'})
@@ -125,3 +129,4 @@ def loader_view(request):
         else:
             return JsonResponse({'status': 'error', 'message': 'No file uploaded'})
     return render(request, 'loader_page.html')
+
