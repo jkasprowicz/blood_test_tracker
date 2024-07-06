@@ -13,10 +13,11 @@ import re
 
 
 # Initialize OpenAI API key
-client = openai.OpenAI(api_key='sk-proj-6WOxpasvrTTcsMPkylEET3BlbkFJzHeSDZKb2wcz1VXr9UaK')
+client = openai.OpenAI(api_key='')
 
 def tracker_view(request):
     return render(request, 'enter_page.html')
+
 
 def extract_text_from_pdf(file):
     text = ""
@@ -31,9 +32,9 @@ def extract_info_with_openai(text):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Você é um assistente útil que extrai todas as informações de relatórios de exames médicos."},
+                {"role": "system", "content": "Você é um assistente útil que extrai todas as informações de relatórios de exames médicos, cada analito deve ter seu resultado!"},
                 {"role": "user", "content": (
-                    "Extraia as seguintes informações do texto."
+                    "Extraia as seguintes informações do texto.\n"
                     "1. Nome do Paciente\n"
                     "2. Data de Nascimento\n"
                     "3. Data de Entrada\n"
@@ -94,16 +95,13 @@ def loader_view(request):
                     parsed_info_list = parse_extracted_info(extracted_info)
                     print(f"Parsed info list: {parsed_info_list}")
 
-                    exam_results_list = []
-
                     for info in parsed_info_list:
-                        # Concatenate reference value lines if necessary
+                        # Create ExamResult object for each exam
                         reference_value = info.get('8. Valor de Referência', '')
                         for key in list(info.keys()):
                             if key.startswith('- '):
                                 reference_value += f"\n{key} {info.pop(key)}"
-                        
-                        # Create ExamResult object (not saving yet)
+
                         exam_result = ExamResult(
                             name=info.get('1. Nome do Paciente', ''),
                             birth_date=datetime.strptime(info.get('2. Data de Nascimento', ''), '%d/%m/%Y').date(),
@@ -115,10 +113,7 @@ def loader_view(request):
                             reference_value=reference_value.strip(),
                             note=info.get('9. Nota', '')
                         )
-                        exam_results_list.append(exam_result)
-                    
-                    # Bulk save all exam results
-                    ExamResult.objects.bulk_create(exam_results_list)
+                        exam_result.save()
 
                     return JsonResponse({'status': 'success', 'message': 'Exam results saved successfully'})
                 else:
@@ -129,4 +124,3 @@ def loader_view(request):
         else:
             return JsonResponse({'status': 'error', 'message': 'No file uploaded'})
     return render(request, 'loader_page.html')
-
