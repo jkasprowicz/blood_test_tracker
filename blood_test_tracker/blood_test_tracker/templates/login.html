@@ -1,0 +1,98 @@
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <style>
+    body {
+      background-image: url('{% static "" %}');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      margin-top: 100px;
+      background-color: rgba(0, 155, 16, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      color: #fff;
+      text-align: center;
+    }
+    .login-container h2 {
+      margin-bottom: 20px;
+    }
+    .login-container .form-group {
+      margin-bottom: 20px;
+    }
+    .login-container label {
+      font-weight: bold;
+    }
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #fff;
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #000;
+    }
+    .login-container .btn-primary {
+      width: 100%;
+      background-color: #adabab;
+      border-color: #adabab;
+    }
+    .login-container .btn-primary:hover {
+      background-color: #777777;
+      border-color: #777777;
+    }
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-8wARsHzcrkTT7WqRLb4AvzUd96d6A1yDq3rNWuPzVYNNBwv0hTg5M5imuzqs/Z3ZNoT/lqwFCuF9+7GMCyU/+w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="login-container">
+    {% if messages %}
+      <div class="container">
+        <div class="alert alert-danger">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">Usuário</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Acessar</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
+
+<!-- Section: Design Block -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+{% endblock content %}

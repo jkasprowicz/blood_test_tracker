@@ -7,7 +7,6 @@ import openai
 import os
 from openai import OpenAI
 from datetime import datetime
-
 import re
 
 
@@ -124,3 +123,4 @@ def loader_view(request):
         else:
             return JsonResponse({'status': 'error', 'message': 'No file uploaded'})
     return render(request, 'loader_page.html')
+
