@@ -14,3 +14,4 @@ class ExamResult(models.Model):
     reference_value = models.CharField(max_length=100)
     note = models.TextField()
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
