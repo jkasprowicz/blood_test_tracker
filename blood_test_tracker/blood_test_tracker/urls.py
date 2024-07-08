@@ -19,14 +19,17 @@ from django.urls import path, include
 from .views import home_view
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import login_view, logout_view, nao_autorizado, login_page
+from .views import login_view, logout_view, nao_autorizado
+from profiles.views import dashboard, group_home
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', login_page, name='login_page'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('not-authorized/', nao_autorizado, name='nao_autorizado'),
+    path('dashboard/', dashboard, name='dashboard'),
+    path('group/<str:group_name>/', group_home, name='group_home'),
     path('', home_view, name='home'),
     path('', include('tracker.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

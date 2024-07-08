@@ -7,9 +7,6 @@ from django.contrib import messages
 def home_view(request):
     return render(request, 'home.html')
 
-def login_page(request):
-    return render(request, 'login.html')
-
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -20,7 +17,7 @@ def login_view(request):
             return redirect('dashboard')
         else:
             messages.error(request, 'Login e/ou senha inválido(s). Tente Novamente.')
-    return render(request, 'home.html')
+    return render(request, 'login.html')
 
 def logout_view(request):
     logout(request)

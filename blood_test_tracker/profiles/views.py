@@ -12,3 +12,8 @@ def dashboard(request):
     else:
         messages.error(request, 'Grupo de usuário Invalido!')
         return redirect('logout')
+    
+
+@login_required
+def group_home(request, group_name):
+    return render(request, 'group_home.html')
