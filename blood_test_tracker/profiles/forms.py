@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserProfile
+from .models import UserProfile, Profile
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Permission
 
@@ -11,20 +11,6 @@ class ProfileForm(forms.ModelForm):
         labels = {
             'group': 'Grupo',
         }
-
-
-class PlaceForm(forms.ModelForm):
-    class Meta:
-        model = Place
-        fields = ['name']
-
-    def clean_name(self):
-        name = self.cleaned_data['name']
-        if Place.objects.filter(name=name).exists():
-            raise forms.ValidationError("Local Já Existe!")
-        return name
-
-
 
 class CustomUserCreationForm(UserCreationForm):
     error_messages = {
@@ -83,14 +69,3 @@ class UserPermissionForm(forms.Form):
         self.fields['selected_permissions'].queryset = Permission.objects.filter(id__in=user_permissions)
 
 
-
-class GroupForm(forms.ModelForm):
-    permissions = forms.ModelMultipleChoiceField(
-        queryset=Permission.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
-
-    class Meta:
-        model = CustomGroup
-        fields = ['name', 'permissions']
