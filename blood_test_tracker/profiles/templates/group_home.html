@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %} {% endblock title %}
+
+{% block content %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/enter_page.css">
+    
+</head>
+<body>
+    <!-- Welcome Container -->
+    <div class="container-fluid welcome-container">
+        <div class="container">
+            <h1>Bem-vindo, {{ user.username }}</h1>
+            <p>Paínel de Saúde.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <!-- Exams Container -->
+            <div class="col-md-4 info-container">
+                <h2>Latest Exams</h2>
+                <ul>
+                    {% for exam in latest_exams %}
+                    <li>{{ exam.exam_type }} - {{ exam.uploaded_at }}</li>
+                    {% empty %}
+                    <li>No exams uploaded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- Center Graph Container -->
+            <div class="col-md-4 graph-container">
+                <h2>Graph Representation</h2>
+                <p>Graph display area.</p>
+            </div>
+
+            <!-- Right Information Container -->
+            <div class="col-md-4 info-container">
+                <h2>Information</h2>
+                <p>Additional details and information go here.</p>
+            </div>
+        </div>
+
+        <!-- Middle Information Container -->
+        <div class="row">
+            <div class="col-md-12 main-info-container">
+                <h2>More Information</h2>
+                <p>More detailed information goes here.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}
