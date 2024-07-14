@@ -1,7 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
-
 
 class ExamResult(models.Model):
     name = models.CharField(max_length=100)
@@ -14,4 +14,4 @@ class ExamResult(models.Model):
     reference_value = models.CharField(max_length=100)
     note = models.TextField()
     uploaded_at = models.DateTimeField(auto_now_add=True)
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)

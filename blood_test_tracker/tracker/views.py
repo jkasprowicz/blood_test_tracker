@@ -8,12 +8,16 @@ import os
 from openai import OpenAI
 from datetime import datetime
 import re
+from django.contrib.auth.decorators import login_required
 
 
 
 # Initialize OpenAI API key
-client = openai.OpenAI(api_key='')
+client = openai.OpenAI('')
 
+
+
+@login_required
 def tracker_view(request):
     return render(request, 'enter_page.html')
 
@@ -78,6 +82,7 @@ def parse_extracted_info(extracted_info):
 
     return parsed_info_list
 
+@login_required
 @csrf_exempt
 def loader_view(request):
     if request.method == 'POST':
@@ -110,7 +115,8 @@ def loader_view(request):
                             results=info.get('7. Resultado', ''),
                             method=info.get('6. Método', ''),
                             reference_value=reference_value.strip(),
-                            note=info.get('9. Nota', '')
+                            note=info.get('9. Nota', ''),
+                            user=request.user 
                         )
                         exam_result.save()
 
