@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 
 
 # Initialize OpenAI API key
-client = openai.OpenAI(api_key='sk-proj-BlyzAbC29svlOTIavMSUT3BlbkFJPJxIWbagUQpHQLotDP4G')
+client = openai.OpenAI('')
 
 
 
