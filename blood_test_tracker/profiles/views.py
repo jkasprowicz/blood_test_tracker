@@ -18,7 +18,7 @@ def dashboard(request):
 @login_required
 def group_home(request, group_name):
     user = request.user
-    latest_exams = ExamResult.objects.filter(name=user.username).order_by('-uploaded_at')[:5]
+    latest_exams = ExamResult.objects.filter(user=user).order_by('-uploaded_at')[:5]
     return render(request, 'group_home.html', {
         'user': user,
         'latest_exams': latest_exams
