@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Exam Detail - {{ exam.exam_type }}{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <h1>{{ exam.exam_type }} - Detail</h1>
+    <p><strong>Uploaded At:</strong> {{ exam.uploaded_at }}</p>
+    <p><strong>Results:</strong> {{ exam.results }}</p>
+    <p><strong>Reference Value:</strong> {{ exam.reference_value }}</p>
+    <p><strong>Method:</strong> {{ exam.method }}</p>
+    <p><strong>Material:</strong> {{ exam.material }}</p>
+    <p><strong>Note:</strong> {{ exam.note }}</p>
+</div>
+{% endblock content %}

@@ -8,7 +8,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/enter_page.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+
 </head>
 <body>
     <!-- Welcome Container -->
@@ -22,22 +29,38 @@
     <!-- Main Content -->
     <div class="container">
         <div class="row">
-            <!-- Exams Container -->
-            <div class="col-md-4 info-container">
+            <!-- Exams Carousel Container -->
+            <div id="examsCarousel" class="carousel slide col-md-4 info-container" data-ride="carousel">
                 <h2>Últimos Exames</h2>
-                <ul>
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner">
                     {% for exam in latest_exams %}
-                    <li>{{ exam.exam_type }} - {{ exam.uploaded_at }}</li>
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <h5>{{ exam.exam_type }} - {{ exam.uploaded_at }}</h5>
+                        <p>{{ exam.results }}</p>
+                        <a href="{% url 'exam_detail' exam.id %}" class="btn btn-primary">Detalhes</a>
+                    </div>
                     {% empty %}
-                    <li>No exams uploaded yet.</li>
+                    <div class="carousel-item active">
+                        <p>No exams uploaded yet.</p>
+                    </div>
                     {% endfor %}
-                </ul>
+                </div>
+                <!-- Left and right controls -->
+                <a class="carousel-control-prev" href="#examsCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#examsCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
             </div>
             
             <!-- Center Graph Container -->
             <div class="col-md-4 graph-container">
                 <h2>Graph Representation</h2>
-                <p>Graph display area.</p>
+                <canvas id="myChart"></canvas>
             </div>
 
             <!-- Right Information Container -->
@@ -55,6 +78,40 @@
             </div>
         </div>
     </div>
+
+    <!-- Script for Graph -->
+    <script>
+        $(document).ready(function() {
+            // Dummy data for demonstration
+            var labels = ['January', 'February', 'March', 'April', 'May'];
+            var data = [65, 59, 80, 81, 56];
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Exam Results',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
 {% endblock content %}

@@ -15,11 +15,27 @@ def dashboard(request):
         return redirect('logout')
     
 
+
 @login_required
 def group_home(request, group_name):
     user = request.user
     latest_exams = ExamResult.objects.filter(user=user).order_by('-uploaded_at')[:5]
+
+    # Prepare data for graphs
+    graph_data = {}
+    for exam in latest_exams:
+        if exam.exam_type not in graph_data:
+            graph_data[exam.exam_type] = {
+                'labels': [],
+                'data': []
+            }
+
+        # Append data for the current exam_type
+        graph_data[exam.exam_type]['labels'].append(exam.data_entrada.strftime('%Y-%m-%d'))
+        graph_data[exam.exam_type]['data'].append(exam.results)
+
     return render(request, 'group_home.html', {
         'user': user,
-        'latest_exams': latest_exams
+        'latest_exams': latest_exams,
+        'graph_data': graph_data
     })

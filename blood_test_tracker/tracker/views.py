@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import ExamResult
@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 
 
 # Initialize OpenAI API key
-client = openai.OpenAI('')
+client = openai.OpenAI(api_key='sk-proj-nLRe5UXeahk596VZ73SXT3BlbkFJ0sPXitWGWTOOZ0Pspat6')
 
 
 
@@ -130,3 +130,8 @@ def loader_view(request):
             return JsonResponse({'status': 'error', 'message': 'No file uploaded'})
     return render(request, 'loader_page.html')
 
+
+@login_required
+def exam_detail(request, exam_id):
+    exam = get_object_or_404(ExamResult, pk=exam_id)
+    return render(request, 'exam_detail.html', {'exam': exam})
