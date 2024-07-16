@@ -34,6 +34,8 @@ def group_home(request, group_name):
         graph_data[exam.exam_type]['labels'].append(exam.data_entrada.strftime('%Y-%m-%d'))
         graph_data[exam.exam_type]['data'].append(exam.results)
 
+    print(graph_data)
+
     return render(request, 'group_home.html', {
         'user': user,
         'latest_exams': latest_exams,
