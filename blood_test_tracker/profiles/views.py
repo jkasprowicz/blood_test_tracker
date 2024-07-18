@@ -21,10 +21,8 @@ def group_home(request, group_name):
     user = request.user
     latest_exams = ExamResult.objects.filter(user=user).order_by('-uploaded_at')[:5]
 
-    # Prepare data for graphs
     graph_data = {}
     for exam in latest_exams:
-        # Normalize exam_type to a consistent format (case insensitive)
         normalized_exam_type = exam.exam_type.lower()
 
         if normalized_exam_type not in graph_data:
@@ -33,7 +31,6 @@ def group_home(request, group_name):
                 'data': []
             }
 
-        # Append data for the current exam_type
         graph_data[normalized_exam_type]['labels'].append(exam.data_entrada.strftime('%Y-%m-%d'))
         graph_data[normalized_exam_type]['data'].append(exam.results)
 
