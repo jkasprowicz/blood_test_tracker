@@ -112,48 +112,57 @@
 
             console.log(dates)
             console.log(results)
+            
 
+            const chartData = {
+                labels: dates,
+                datasets: [{
+                    label: examType,
+                    data: results,
+                    borderColor: `hsl(${index * 360 / Object.keys(graphData).length}, 70%, 50%)`,
+                    fill: false
+                }]
+            };
 
-            // Get the context and create the chart
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: '"yyyy-MM-dd"',
+                            displayFormats: {
+                                day: '"yyyy-MM-dd"'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Result'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `${examType} Results Over Time`
+                    }
+                }
+            };
+
             const ctx = canvas.getContext('2d');
             new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: dates, // Ensure dates are parsed correctly
-                    datasets: [{
-                        label: examType,
-                        data: results,
-                        borderColor: `hsl(${index * 360 / Object.keys(graphData).length}, 70%, 50%)`,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `${examType} Results Over Time`
-                        }
-                    },
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day'
-                            },
-                            adapters: {
-                                date: {
-                                    locale: {
-                                        parse: 'yyyy-MM-dd'
-                                    }
-                                }
-                            }
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
+                data: chartData,
+                options: chartOptions
             });
         });
     </script>
