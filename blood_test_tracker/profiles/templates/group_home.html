@@ -120,7 +120,9 @@
                     label: examType,
                     data: results,
                     borderColor: `hsl(${index * 360 / Object.keys(graphData).length}, 70%, 50%)`,
-                    fill: false
+                    fill: false,
+                    pointRadius: 5
+
                 }]
             };
 
@@ -129,7 +131,7 @@
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'time',
+                        type: 'category',
                         time: {
                             unit: 'day',
                             tooltipFormat: '"yyyy-MM-dd"',
@@ -147,7 +149,7 @@
                         title: {
                             display: true,
                             text: 'Result'
-                        }
+                        },
                     }
                 },
                 plugins: {
