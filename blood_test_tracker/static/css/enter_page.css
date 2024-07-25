@@ -36,6 +36,15 @@ body {
 @media (max-width: 768px) {
     .info-container, .graph-container, .main-info-container {
         margin-bottom: 20px;
+        width: 100%; /* Full width on small screens */
+    }
+
+    .graph-container {
+        flex: 0 0 100%; /* Make sure it uses full width */
+    }
+
+    .info-container {
+        flex: 0 0 100%; /* Make sure it uses full width */
     }
 }
 
@@ -49,4 +58,9 @@ body {
 
 .graph-container {
     flex: 0 0 50%; /* Adjust the width of the graph container */
+}
+
+.graph-container canvas {
+    width: 100% !important; /* Ensure the canvas takes full width of the container */
+    height: 400px !important; /* Set the height of the canvas */
 }
