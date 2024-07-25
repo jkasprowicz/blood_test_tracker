@@ -33,34 +33,43 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-@media (max-width: 768px) {
-    .info-container, .graph-container, .main-info-container {
-        margin-bottom: 20px;
-        width: 100%; /* Full width on small screens */
-    }
-
-    .graph-container {
-        flex: 0 0 100%; /* Make sure it uses full width */
-    }
-
-    .info-container {
-        flex: 0 0 100%; /* Make sure it uses full width */
-    }
-}
-
-.graph-container {
-    flex: 0 0 50%; /* Adjust the width of the graph container */
-}
-
-.info-container {
-    flex: 0 0 25%; /* Adjust the width of the information container */
-}
-
-.graph-container {
-    flex: 0 0 50%; /* Adjust the width of the graph container */
-}
-
 .graph-container canvas {
     width: 100% !important; /* Ensure the canvas takes full width of the container */
     height: 400px !important; /* Set the height of the canvas */
+}
+
+@media (min-width: 769px) {
+    .info-container, .graph-container, .main-info-container {
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .info-container, .graph-container, .main-info-container {
+        flex: 1 0 100%; /* Default to full width on larger screens */
+    }
+
+    .info-container {
+        flex: 0 0 25%; /* Adjust the width of the information container */
+    }
+
+    .graph-container {
+        flex: 0 0 50%; /* Adjust the width of the graph container */
+    }
+}
+
+@media (max-width: 768px) {
+    .info-container, .graph-container, .main-info-container {
+        margin-bottom: 20px;
+        width: 100%; /* Ensure full width on smaller screens */
+    }
+
+    .info-container, .graph-container, .main-info-container {
+        flex: 0 0 100%; /* Ensure they stack vertically */
+    }
+
+    .graph-container canvas {
+        width: 100% !important; /* Ensure the canvas takes full width of the container */
+        height: 400px !important; /* Set the height of the canvas */
+    }
 }
