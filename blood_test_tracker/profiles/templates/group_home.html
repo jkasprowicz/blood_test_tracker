@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
     <!-- Welcome Container -->
@@ -24,10 +26,8 @@
     <!-- Main Content -->
     <div class="container">
         <div class="row">
-            <!-- Exams Carousel Container -->
             <div id="examsCarousel" class="carousel slide col-md-12 col-lg-4 info-container" data-ride="carousel">
                 <h2>Últimos Exames</h2>
-                <!-- Wrapper for slides -->
                 <div class="carousel-inner">
                     {% for exam in latest_exams %}
                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
@@ -54,7 +54,7 @@
             
             <!-- Center Graph Container -->
             <div class="col-md-12 col-lg-4 graph-container">
-                <h2>Graph Representation</h2>
+                <h2>Gráfico do Exame</h2>
                 <div id="examGraphCarousel" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner">
                         <!-- Carousel items will be inserted here by JavaScript -->
@@ -72,35 +72,35 @@
 
             <!-- Right Information Container -->
             <div class="col-md-12 col-lg-4 info-container">
-                <h2>Information</h2>
+                <h2>Informações</h2>
                 <p>Additional details and information go here.</p>
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-12 main-info-container">
-                <h2>More Information</h2>
+                <h2>Mais Informações</h2>
                 <p>More detailed information goes here.</p>
             </div>
         </div>
     </div>
 
     <script>
+
         const graphData = JSON.parse('{{ graph_data_json|escapejs }}');
-        console.log(graphData);
 
         const carouselInner = document.querySelector('#examGraphCarousel .carousel-inner');
 
-        // Function to parse dates if needed
         const parseDates = (dates) => dates.map(date => new Date(date));
 
-        // Iterate over each exam type in graphData
+        console.log(graphData);
+
+
         Object.keys(graphData).forEach((examType, index) => {
             const isActive = index === 0 ? 'active' : '';
             const carouselItem = document.createElement('div');
             carouselItem.classList.add('carousel-item', isActive);
 
-            // Create a canvas element for the chart
             const canvas = document.createElement('canvas');
             canvas.id = `chart-${index}`;
             carouselItem.appendChild(canvas);
@@ -108,10 +108,6 @@
 
             const dates = graphData[examType].labels
             const results = graphData[examType].data
-
-            console.log(dates)
-            console.log(results)
-            
 
             const chartData = {
                 labels: dates,
@@ -140,21 +136,21 @@
                         },
                         title: {
                             display: true,
-                            text: 'Date'
+                            text: 'Data'
                         }
                     },
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Result'
+                            text: 'Resultados'
                         },
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: `${examType} Results Over Time`
+                        text: `${examType} Resultados`
                     }
                 }
             };
