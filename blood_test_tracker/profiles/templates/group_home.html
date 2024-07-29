@@ -91,13 +91,16 @@
 
         const carouselInner = document.querySelector('#examGraphCarousel .carousel-inner');
 
-        const parseDates = (dates) => dates.map(date => new Date(date));
 
-        console.log(graphData);
+        console.log(graphData)
+
 
 
         Object.keys(graphData).forEach((examType, index) => {
+            console.log(`Creating chart ${index} for ${examType}`);
+
             const isActive = index === 0 ? 'active' : '';
+            console.log(isActive)
             const carouselItem = document.createElement('div');
             carouselItem.classList.add('carousel-item', isActive);
 
@@ -106,8 +109,11 @@
             carouselItem.appendChild(canvas);
             carouselInner.appendChild(carouselItem);
 
-            const dates = graphData[examType].labels
-            const results = graphData[examType].data
+            console.log(`Added carousel item for ${examType}`);
+            
+            // Chart data and options
+            const dates = graphData[examType].labels;
+            const results = graphData[examType].data;
 
             const chartData = {
                 labels: dates,
@@ -117,7 +123,6 @@
                     borderColor: `hsl(${index * 360 / Object.keys(graphData).length}, 70%, 50%)`,
                     fill: false,
                     pointRadius: 5
-
                 }]
             };
 
@@ -126,12 +131,12 @@
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'category',
+                        type: 'time',
                         time: {
                             unit: 'day',
-                            tooltipFormat: '"yyyy-MM-dd"',
+                            tooltipFormat: 'yyyy-MM-dd',
                             displayFormats: {
-                                day: '"yyyy-MM-dd"'
+                                day: 'yyyy-MM-dd'
                             }
                         },
                         title: {
@@ -144,7 +149,7 @@
                         title: {
                             display: true,
                             text: 'Resultados'
-                        },
+                        }
                     }
                 },
                 plugins: {
@@ -155,13 +160,16 @@
                 }
             };
 
+            // Create chart
             const ctx = canvas.getContext('2d');
+            console.log(`Rendering chart ${index}`);
             new Chart(ctx, {
                 type: 'line',
                 data: chartData,
                 options: chartOptions
             });
         });
+
     </script>
 
 </body>
