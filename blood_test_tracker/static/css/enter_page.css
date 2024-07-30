@@ -33,9 +33,18 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-.graph-container canvas {
-    width: 100% !important; /* Ensure the canvas takes full width of the container */
-    height: 400px !important; /* Set the height of the canvas */
+.button{
+    display: block;
+    width: 100px;
+    height: 100px;
+    background-color: rgb(69, 116, 255);
+    border-radius: 10px;
+    padding: 30px 10px 0px 30px;
+    
+}
+
+.button:hover {
+    background-color: rgb(0, 40, 160);
 }
 
 @media (min-width: 769px) {
@@ -66,10 +75,5 @@ body {
 
     .info-container, .graph-container, .main-info-container {
         flex: 0 0 100%; /* Ensure they stack vertically */
-    }
-
-    .graph-container canvas {
-        width: 100% !important; /* Ensure the canvas takes full width of the container */
-        height: 400px !important; /* Set the height of the canvas */
     }
 }

@@ -73,3 +73,9 @@ def group_home(request, group_name):
         'latest_exams': latest_exams,
         'graph_data_json': graph_data_json
     })
+
+
+
+def graph_exams(request):
+    return render(request, 'grafico_exames.html')
+
