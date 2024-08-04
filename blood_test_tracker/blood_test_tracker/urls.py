@@ -20,7 +20,7 @@ from .views import home_view
 from django.conf.urls.static import static
 from django.conf import settings
 from .views import login_view, logout_view, nao_autorizado
-from profiles.views import dashboard, group_home
+from profiles.views import dashboard, group_home, graph_exams
 
 
 urlpatterns = [
@@ -30,6 +30,7 @@ urlpatterns = [
     path('not-authorized/', nao_autorizado, name='nao_autorizado'),
     path('dashboard/', dashboard, name='dashboard'),
     path('group/<str:group_name>/', group_home, name='group_home'),
+    path('grafico_exames/', graph_exams, name='graph_exams'),
     path('', home_view, name='home'),
     path('', include('tracker.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
